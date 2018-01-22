@@ -8,6 +8,7 @@ import infi.test.model.Pasta;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
@@ -16,6 +17,8 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.client.HttpResponse;
+import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 
@@ -24,7 +27,10 @@ public class PastaVerticle extends AbstractVerticle{
 	public static int PORT = 8082;
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	private static ArrayList<Pasta> pasataModels = new ArrayList<>();
-	
+	private static String FOOD2FORK_URL = "food2Fork.com/api/search";
+	private static String FOOD2FORK_SEARCH_URI = "/api/search";
+	private static String FOOD2FORK_RECIPE_URI = "/api/search";
+	private static String FOOD2FORK_KEY = "510b4b833870c160aeb1b8dbb6c10178";
 	
 	@Override
     public void start(Future<Void> startFuture) {
@@ -58,7 +64,7 @@ public class PastaVerticle extends AbstractVerticle{
 
 		router.get("/sauces").handler(this::getAllSauces);
 		
-		//router.post("/sauces").handler(this::doPost);
+		router.get("/pasta-recipe").handler(this::getPastaRecipe);
 		
     }
 
@@ -105,15 +111,37 @@ public class PastaVerticle extends AbstractVerticle{
 		}
 	}
 	
-	private void doPost(RoutingContext routingContext) {
-		final Pasta model = Json.decodeValue(routingContext.getBodyAsString(), Pasta.class);
-		pasataModels.add(model);
-		routingContext.response()
-	      .setStatusCode(201)
-	      .putHeader("content-type", "application/json; charset=utf-8")
-	      .end(Json.encodePrettily(pasataModels));
+
+	private void getPastaRecipe(RoutingContext routingContext) {
+		try {
+			
+			WebClient client = WebClient.create(vertx);
+
+			// Send a GET request
+			client.get( FOOD2FORK_URL, FOOD2FORK_SEARCH_URI+"?key="+FOOD2FORK_KEY+"&q=Spaghetti")				
+				.timeout(5000)
+				.send(ar -> {
+					if (ar.succeeded()) {
+				      // Obtain response
+				      HttpResponse<Buffer> response = ar.result();
+				      logger.info("Received response with status code" + response.statusCode());
+				      
+				      routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+						.end(response.bodyAsString());
+				    } else {
+				    	logger.error("ERROR! " + ar.cause().getMessage());
+				    }
+				});
+			
+			
+			
+
+		} catch (Exception e) {
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+			.end("Error loading extensions.json: "+e.getMessage());
+		}
 	}
-	
+
 	
     @Override
     public void stop(Future stopFuture) throws Exception {
