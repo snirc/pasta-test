@@ -10,9 +10,9 @@ import infi.test.model.Sauce;
 
 public class DataMock {
 
-	private static String[] pastaTypes = {"Spaghetti","Farfalle","Lasagna","Fettuccine"};
+	private static String[] pastaTypes = {"spaghetti","farfalle","lasagna","fettuccine"};
 	
-	private static String[] sauceTypes = {"Tomato","Cream cheese","Pesto","Alfredo", "Bolognese"};
+	private static String[] sauceTypes = {"tomato","cream cheese","pesto","alfredo", "aolognese"};
 	
 	private static HashMap<String,Pasta> pastaList = new HashMap<>();
 	private static HashMap<String,Sauce> sauceList = new HashMap<>();

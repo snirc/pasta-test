@@ -1,12 +1,14 @@
 package infi.test.model;
 
+import java.util.List;
+
 public class PastaRecipe {
 
 	private String type;
 	private String howToCookIt;
 	private String image;
 	private double price;
-	private Object ingredients;
+	private List<String> ingredients;
 	
 	
 
@@ -34,10 +36,10 @@ public class PastaRecipe {
 	public void setImage(String image) {
 		this.image = image;
 	}
-	public Object getIngredients() {
+	public List<String> getIngredients() {
 		return ingredients;
 	}
-	public void setIngredients(Object ingredients) {
+	public void setIngredients(List<String> ingredients) {
 		this.ingredients = ingredients;
 	}
 }
